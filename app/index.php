@@ -26,20 +26,24 @@
     $username = 'biblioteca_user';
     $password = 'secret123';
 
-    try {
-        $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+   try {
+        // Conexión forzada a UTF-8 desde el origen
+        $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
         $stmt = $conn->prepare("SELECT * FROM libros");
         $stmt->execute();
+        
         echo '<table>';
         echo '<tr><th>ID</th><th>Título</th><th>Autor</th><th>Año</th></tr>';
-
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             echo '<tr>';
             echo '<td>' . $row['id'] . '</td>';
             echo '<td>' . htmlspecialchars($row['titulo']) . '</td>';
             echo '<td>' . htmlspecialchars($row['autor']) . '</td>';
-            echo '<td>' . $row['año_publicacion'] . '</td>';
+            // Esto asegura que pinte el año sin importar si la columna se llama ano_publicacion o año_publicacion
+            $anio = isset($row['año_publicacion']) ? $row['año_publicacion'] : ($row['ano_publicacion'] ?? '');
+            echo '<td>' . htmlspecialchars($anio) . '</td>';
             echo '</tr>';
         }
         echo '</table>';
